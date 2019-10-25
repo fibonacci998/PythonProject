@@ -1,0 +1,4 @@
+#!D:\PythonProject\crawl_bds.com\venv\Scripts\python.exe
+
+from splash.server import main
+main()

@@ -1,0 +1,33 @@
+import os
+import tarfile
+from six.moves import urllib
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from zlib import crc32
+
+DOWNLOAD_ROOT = "https://raw.githubusercontent.com/ageron/handson-ml2/master/"
+HOUSING_PATH = os.path.join("datasets", "housing")
+HOUSING_URL = DOWNLOAD_ROOT + "datasets/housing/housing.tgz"
+
+def load_housing_data(housing_path=HOUSING_PATH):
+    pd.set_option('display.max_rows', 500)
+    pd.set_option('display.max_columns', 500)
+    pd.set_option('display.width', 1000)
+    csv_path = os.path.join(housing_path, "housing.csv")
+    return pd.read_csv(csv_path)
+def display1(housing):
+    housing.hist(bins=50, figsize=(20, 15))
+    plt.show()
+def split_train_test(data, test_ratio):
+    shuffled_indices = np.random.permutation(len(data))
+    test_set_size = int(len(data) * test_ratio)
+    test_indices = shuffled_indices[:test_set_size]
+    train_indices = shuffled_indices[test_set_size:]
+    return data.iloc[train_indices], data.iloc[test_indices]
+def test_set_check(identifier, test_ratio):
+    return crc32(np.int64(identifier)) & 0xffffffff < test_ratio * 2**32
+def split_train_test_by_id(data, test_ratio, id_column):
+    ids = data[id_column]
+    in_test_set = ids.apply(lambda id_: test_set_check(id_, test_ratio))
+    return data.loc[~in_test_set], data.loc[in_test_set]
